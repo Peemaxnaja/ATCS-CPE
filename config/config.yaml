@@ -16,3 +16,11 @@ cleaning:
   remove_extra_whitespace: true
   remove_urls: false
   min_text_length: 5
+
+metadata:
+  chunks_directory: "data/chunks"
+  metadata_directory: "data/metadata"
+  default_language: "th"
+  default_author: "Pipeline System"
+  extract_file_stats: true
+
