@@ -1,0 +1,18 @@
+# Pipeline Configuration
+
+collection:
+  source_directory: "data/sample"
+  raw_directory: "data/raw"
+  allowed_extensions:
+    - ".pdf"
+    - ".docx"
+    - ".html"
+    - ".txt"
+    - ".md"
+
+cleaning:
+  raw_directory: "data/raw"
+  clean_directory: "data/clean"
+  remove_extra_whitespace: true
+  remove_urls: false
+  min_text_length: 5
