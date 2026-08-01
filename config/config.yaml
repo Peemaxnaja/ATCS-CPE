@@ -24,3 +24,13 @@ metadata:
   default_author: "Pipeline System"
   extract_file_stats: true
 
+embedding:
+  metadata_directory: "data/metadata"
+  embeddings_directory: "data/embeddings"
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 16
+  device: "cpu"
+  dimension: 384
+
+
+
