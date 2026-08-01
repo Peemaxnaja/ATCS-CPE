@@ -30,7 +30,7 @@ htmlcov/
 .tox/
 
 # Data & Storage (Pipeline intermediate files)
-data/raw/*
+
 !data/raw/.gitkeep
 data/clean/*
 !data/clean/.gitkeep
