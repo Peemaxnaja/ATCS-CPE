@@ -59,4 +59,4 @@ dist/
 .eggs/
 
 # Documentation packs for team members (Local distribution only)
-docs/teams/
+teams/
