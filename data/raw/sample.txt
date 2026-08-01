@@ -1,0 +1,15 @@
+=========================================
+HEADER: Document Title - LLM Data Pipeline
+=========================================
+
+This is a sample text document for testing the LLM Data Pipeline.
+It contains multiple lines of unstructured content.
+
+Key Information:
+- Retrieval-Augmented Generation (RAG) combines search with LLMs.
+- Data collection and cleaning are essential steps in the RAG pipeline.
+
+Page 1 of 5
+=========================================
+FOOTER: Confidential Property of Project Team
+=========================================
