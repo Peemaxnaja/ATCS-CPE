@@ -26,7 +26,6 @@ DISCLAIMER = (
 
 def print_answer(rank, item):
     print(f"\nResult {rank} (Score: {item['score']:.2f})")
-    print(f"Category: {item['category']}")
     print(f"Similar Question: {item['question']}")
     print(f"Answer: {item['answer']}")
 
