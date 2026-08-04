@@ -1,0 +1,62 @@
+# Python / Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environments & Virtual Envs
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+.env.*.local
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.nox/
+.tox/
+
+# Data & Storage (Pipeline intermediate files)
+
+!data/raw/.gitkeep
+data/clean/*
+!data/clean/.gitkeep
+data/normalized/*
+!data/normalized/.gitkeep
+data/chunks/*
+!data/chunks/.gitkeep
+data/metadata/*
+!data/metadata/.gitkeep
+data/embeddings/*
+!data/embeddings/.gitkeep
+data/vectordb/*
+!data/vectordb/.gitkeep
+chroma_db/
+*.db
+*.sqlite3
+
+# Logs & Monitoring
+*.log
+logs/
+
+# Build & Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Documentation packs for team members (Local distribution only)
+teams/
