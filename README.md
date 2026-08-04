@@ -9,7 +9,7 @@
 <br/>
 
 ![Course](https://img.shields.io/badge/course-ATCS--CPE-0A0A0A?style=for-the-badge)
-![Labs](https://img.shields.io/badge/labs-1%20%2F%2010-1F6FEB?style=for-the-badge)
+![Labs](https://img.shields.io/badge/labs-2%20%2F%2010-1F6FEB?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Status](https://img.shields.io/badge/status-in%20progress-F0B429?style=for-the-badge)
 
@@ -33,7 +33,7 @@
 | # | Lab | Topic | Stack | Status |
 | :---: | :--- | :--- | :--- | :---: |
 | 01 | **[LAB01](LAB01/)** | LLM Data Pipeline for RAG — 8-stage ingestion pipeline. Owned **Step 5: Metadata Enrichment**. | `Python` `Pydantic` `pytest` | ✅ |
-| 02 | `LAB02` | — | — | ⏳ |
+| 02 | **[LAB02](LAB02/)** | RAG Retrieval System built from scratch — Thai firearms law & safety QA over a self-authored 313-pair knowledge base. | `Python` `FAISS` `sentence-transformers` | ✅ |
 | 03 | `LAB03` | — | — | ⏳ |
 | 04 | `LAB04` | — | — | ⏳ |
 | 05 | `LAB05` | — | — | ⏳ |
@@ -61,7 +61,18 @@ ATCS-CPE/
 │       ├── requirements.txt
 │       └── run_pipeline.py
 │
-├── LAB02/ … LAB10/                 ⏳ one folder per lab
+├── LAB02/                          ✅ RAG Retrieval System from scratch
+│   ├── README.md                   → architecture, results analysis, citations
+│   └── RAG-Project/
+│       ├── data/gun_q_a.txt        → 313-pair Thai QA knowledge base
+│       ├── labs/                   → lab01–lab07 step scripts
+│       ├── src/                    → loader, splitter, embedder, FAISS store, retriever
+│       ├── outputs/                → extracted text, chunks, embeddings, results
+│       ├── vector_db/              → prebuilt FAISS index + chunk store
+│       ├── config.py
+│       └── main.py
+│
+├── LAB03/ … LAB10/                 ⏳ one folder per lab
 │   ├── <code>.ipynb | .py
 │   ├── dataset.csv                 (if any)
 │   ├── report.pdf                  (if any)
