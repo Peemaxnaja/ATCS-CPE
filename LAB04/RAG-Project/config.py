@@ -32,7 +32,7 @@ OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
 VECTOR_DB_DIR = os.path.join(BASE_DIR, "vector_db")
 
 
-# clack python build_index.py
+# ไฟล์ต้นทางที่ build_index.py อ่าน
 SOURCE_FILE = os.path.join(DATA_DIR, "military_qa.txt")
 GOLDEN_SET_FILE = os.path.join(DATA_DIR, "golden_set.json")
 
@@ -65,7 +65,7 @@ EMBEDDING_PASSAGE_PREFIX = ""
 
 # 4. การค้นหา
 TOP_K = 3               # ส่งกี่ chunk ให้ LLM เขียนคำตอบ
-CANDIDATE_K = 20        # ดึง TOP_K
+CANDIDATE_K = 20        # ดึงมาก่อนเท่านี้ แล้วค่อยคัดเหลือ TOP_K
 RRF_K = 60              # ค่าคงที่ของสูตร RRF
 
 # น้ำหนักของแต่ละฝั่งตอนรวมอันดับ — 1.0 เท่ากันคือเชื่อพอกัน
@@ -104,7 +104,7 @@ MULTI_QUERY_COUNT = 3
 # 5. LLM
 LLM_PROVIDER = "ollama"
 LLM_MODEL = ""          # เว้นว่าง = ใช้ค่า default 
-LLM_TEMPERATURE = 0.2   # เหมือนค่าเทรดโฮล 
+LLM_TEMPERATURE = 0.2   # ยิ่งต่ำยิ่งตอบซ้ำเดิม งานนี้อยากได้คำตอบนิ่ง ไม่ต้องสร้างสรรค์
 LLM_MAX_TOKENS = 800
 
 LLM_PROVIDERS = {
