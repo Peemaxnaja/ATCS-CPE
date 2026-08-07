@@ -15,6 +15,8 @@ knowledge base เป็นชุดถาม-ตอบความรู้ท�
 
 ขอบเขตของข้อมูลคือ **ความรู้เชิงสารานุกรม** เท่านั้น — การจำแนกประเภท หลักการทำงาน ประวัติ และคำศัพท์ ไม่มีข้อมูลเชิงปฏิบัติการ วิธีสร้างหรือดัดแปลงอาวุธ ตัวเลขสมรรถนะทั้งหมดเป็นค่าโดยประมาณจากแหล่งข้อมูลสาธารณะ ระบบขึ้น disclaimer นี้ท้ายคำตอบทุกครั้ง
 
+ข้อความเขียนขึ้นใหม่ทั้งหมด ไม่ได้คัดลอกประโยคจากที่ใด แต่ข้อเท็จจริงในนั้นเป็นความรู้มาตรฐานของโดเมน จึงมีตารางบอกแหล่งตรวจสอบรายหมวดไว้ที่หัวข้อ [แหล่งตรวจสอบข้อเท็จจริงใน dataset](#แหล่งตรวจสอบข้อเท็จจริงใน-dataset)
+
 ### สิ่งที่แก้จากโครงร่างต้นฉบับ
 
 skeleton ที่อาจารย์ให้มาผูกกับโดเมนสุขภาพทางเพศไว้หลายจุด ผมเปลี่ยนทั้งหมดมาเป็นโดเมนทหาร ได้แก่ `SYSTEM_PROMPT`, `REWRITE_PROMPT`, `MULTI_QUERY_PROMPT`, `HYDE_PROMPT`, ตาราง `SLANG_MAP` ใน `query_transform.py`, ตาราง `TO_SLANG` ใน `build_golden_set.py` และคำถามตัวอย่างใน `lab07`
@@ -610,8 +612,9 @@ README รอบแรกจบด้วยรายการ "จะทำต�
 | รายการ | แหล่งที่มา |
 | :--- | :--- |
 | โครงร่างโปรเจกต์ Stage 1-2 และแนวทางการวัดผล | [aproot-en/Advanced-Topic-in-Computer-Software-Course](https://github.com/aproot-en/Advanced-Topic-in-Computer-Software-Course) โฟลเดอร์ `DL-04-RAG System Development I` ของอาจารย์ Anuruk Prommakhot |
-| `data/military_qa.txt` | ผมทำขึ้นเองสำหรับใบงานนี้ เรียบเรียงจากข้อมูลสาธารณะเชิงสารานุกรมด้านยุทโธปกรณ์ |
-| `data/paraphrases.json` | ผมเขียนเองทั้ง 55 ข้อ ไม่ได้ใช้ AI ช่วยแต่ง |
+| `data/military_qa.txt` | เขียนขึ้นสำหรับใบงานนี้ ไม่ได้คัดลอกข้อความจากที่ใด ส่วนข้อเท็จจริงตรวจสอบได้จากแหล่งในหัวข้อถัดไป |
+| `data/paraphrases.json` | คำถาม 55 ข้อสำหรับใช้เป็นชุดวัดผล เขียนขึ้นสำหรับใบงานนี้ |
+| `data/out_of_scope.json` | คำถามนอกคลัง 19 ข้อสำหรับวัดการปฏิเสธ เขียนขึ้นสำหรับใบงานนี้ |
 | embedding model (ค่าเริ่มต้น) | [`paraphrase-multilingual-MiniLM-L12-v2`](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2) สัญญาอนุญาต Apache-2.0 |
 | embedding model (ตัวที่เอามาเทียบ) | [`intfloat/multilingual-e5-small`](https://huggingface.co/intfloat/multilingual-e5-small) สัญญาอนุญาต MIT |
 | reranker model (เตรียมไว้ ยังไม่ได้รัน) | [`BAAI/bge-reranker-v2-m3`](https://huggingface.co/BAAI/bge-reranker-v2-m3) สัญญาอนุญาต Apache-2.0 |
@@ -625,7 +628,29 @@ README รอบแรกจบด้วยรายการ "จะทำต�
 | แนวคิด HyDE | Gao et al. (2022), *Precise Zero-Shot Dense Retrieval without Relevance Labels*, [arXiv:2212.10496](https://arxiv.org/abs/2212.10496) |
 | โมเดลตระกูล E5 และที่มาของคำนำหน้า query/passage | Wang et al. (2024), *Multilingual E5 Text Embeddings: A Technical Report*, [arXiv:2402.05672](https://arxiv.org/abs/2402.05672) |
 
-ไม่มีการใช้ข้อมูลที่ละเมิดลิขสิทธิ์ ข้อมูลส่วนบุคคลที่ไม่ได้รับอนุญาต หรือข้อมูลผิดกฎหมาย เนื้อหาใน dataset เป็นความรู้เชิงสารานุกรมจากแหล่งสาธารณะ เรียบเรียงเพื่อการศึกษา ไม่มีข้อมูลเชิงปฏิบัติการหรือวิธีสร้าง/ดัดแปลงอาวุธ
+### แหล่งตรวจสอบข้อเท็จจริงใน dataset
+
+ข้อความทั้ง 361 คู่เขียนขึ้นใหม่สำหรับใบงานนี้ ไม่ได้คัดลอกประโยคจากที่ใด แต่**ข้อเท็จจริงในนั้นไม่ใช่ของใหม่** — มีคำตอบ 79 ข้อที่ระบุปี ขนาดกระสุน ระยะ หรือชื่อรุ่นแบบเจาะจง ซึ่งเป็นความรู้มาตรฐานในโดเมนและต้องตรวจสอบย้อนกลับได้
+
+ตารางนี้จึงบอกว่า **แต่ละหมวดตรวจสอบข้อเท็จจริงได้จากที่ไหน** ไม่ใช่รายการที่คัดลอกข้อความมา
+
+| หมวดใน dataset | แหล่งที่ใช้ตรวจสอบได้ |
+| :--- | :--- |
+| อาวุธปืนเล็ก · ปืนใหญ่และอาวุธสนับสนุน | หน้าสารานุกรมของแต่ละรุ่นบน [Wikipedia](https://en.wikipedia.org/wiki/List_of_firearms) และเว็บผู้ผลิต เช่น [FN Herstal](https://fnherstal.com), [Nammo](https://www.nammo.com) |
+| รถถังและยานเกราะ · เฮลิคอปเตอร์ทางทหาร | หน้าสารานุกรมของแต่ละรุ่น และเว็บผู้ผลิต เช่น [Rheinmetall](https://www.rheinmetall.com), [Leonardo](https://www.leonardo.com) |
+| อากาศยานรบ | เว็บผู้ผลิต [Lockheed Martin F-35](https://www.lockheedmartin.com/en-us/products/f-35.html), [Dassault Rafale](https://www.dassault-aviation.com/en/defense/rafale/), [Eurofighter](https://www.eurofighter.com) |
+| เรือรบและเรือดำน้ำ | [US Navy Fact Files](https://www.navy.mil/Resources/Fact-Files/) และหน้าสารานุกรมของแต่ละชั้นเรือ |
+| ขีปนาวุธและการป้องกันภัยทางอากาศ | [CSIS Missile Threat](https://missilethreat.csis.org) ซึ่งเป็นฐานข้อมูลเปิดที่รวบรวมสมรรถนะอาวุธนำวิถีรายระบบ |
+| อากาศยานไร้คนขับและสงครามอิเล็กทรอนิกส์ | หน้าสารานุกรมของแต่ละรุ่น และรายงานเปิดของ [RUSI](https://www.rusi.org) |
+| กองทัพไทย | เว็บทางการของเหล่าทัพ — [กองทัพบก](https://www.rta.mi.th), [กองทัพเรือ](https://www.navy.mi.th), [กองทัพอากาศ](https://www.rtaf.mi.th) และงบประมาณจาก [สำนักงบประมาณ](https://www.bb.go.th) |
+| หลักนิยมและคำศัพท์ทางทหาร | [NATO Standardization Office](https://nso.nato.int) สำหรับ STANAG และอักษรสะกด, [US DoD Dictionary of Military Terms](https://www.jcs.mil/doctrine/dod-terminology/) |
+| สงครามไซเบอร์และปฏิบัติการอวกาศ | [MITRE ATT&CK](https://attack.mitre.org), [CISA](https://www.cisa.gov), [NIST CSRC](https://csrc.nist.gov) และหน้า orbital mechanics ของ [NASA](https://science.nasa.gov) |
+| อาวุธนิวเคลียร์และการควบคุมอาวุธ | ตัวบทสนธิสัญญาจาก [UNODA](https://disarmament.unoda.org/wmd/nuclear/), [IAEA](https://www.iaea.org), [CTBTO](https://www.ctbto.org) และ [ICBL](https://www.icbl.org) สำหรับอนุสัญญาออตตาวา |
+| สถิติงบประมาณและการค้าอาวุธ (ใช้ข้ามหมวด) | [SIPRI Military Expenditure Database](https://www.sipri.org/databases/milex) |
+
+**ข้อจำกัดที่ต้องบอกตรง ๆ** — ตัวเลขใน dataset ยังไม่ได้ถูกตรวจทานทีละข้อกับแหล่งข้างต้น ตารางนี้บอกว่าตรวจสอบได้ที่ไหน ไม่ได้แปลว่าตรวจครบแล้ว ถ้าจะเอาไปใช้จริงต้องไล่สอบทานรายข้อก่อน โดยเฉพาะ 79 ข้อที่มีตัวเลขเจาะจง
+
+ไม่มีการใช้ข้อมูลที่ละเมิดลิขสิทธิ์ ข้อมูลส่วนบุคคลที่ไม่ได้รับอนุญาต หรือข้อมูลผิดกฎหมาย เนื้อหาเป็นความรู้เชิงสารานุกรมที่เผยแพร่ทั่วไป เรียบเรียงเพื่อการศึกษา ไม่มีข้อมูลเชิงปฏิบัติการหรือวิธีสร้าง/ดัดแปลงอาวุธ
 
 ## การส่งงาน
 
