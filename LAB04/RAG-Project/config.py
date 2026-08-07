@@ -88,7 +88,7 @@ DISCLAIMER = ("หมายเหตุ: ข้อมูลนี้เป็น
               "ตัวเลขสมรรถนะเป็นค่าโดยประมาณจากแหล่งข้อมูลสาธารณะ")
 
 EVAL_K_VALUES = [1, 3, 5, 10]
-GOLDEN_SET_SIZE = 60
+GOLDEN_SET_SIZE = 120   # 10 ข้อต่อหมวด จาก 12 หมวด — ขยายตามขนาด dataset ที่โตขึ้น
 
 
 # create output directories if they don't exist
