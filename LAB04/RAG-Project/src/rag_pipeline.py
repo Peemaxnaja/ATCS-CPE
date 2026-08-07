@@ -30,6 +30,30 @@ from src.query_transform import QueryTransformer
 from src.rerankers import get_reranker
 
 
+def is_in_scope(chunks):
+    """คำถามนี้อยู่ในคลังความรู้ไหม — ดูจากคะแนนความคล้ายที่ดีที่สุดที่ค้นเจอ
+
+    ที่ต้องมีขั้นนี้เพราะ FAISS คืน top-k ให้เสมอ ไม่ว่าคำถามจะเกี่ยวหรือไม่
+    ถามเรื่องส้มตำก็ยังได้ chunk เรื่องปีกเดลตากลับมา แล้วระบบก็ตอบไปพร้อม
+    อ้างอิง [1] อย่างมั่นใจ เงื่อนไข `if not chunks` ใน generator.py จึงไม่เคย
+    เป็นจริง และ NO_CONTEXT_MESSAGE ที่เตรียมไว้ก็ไม่เคยถูกใช้
+
+    ใช้คะแนน dense ไม่ใช่คะแนน RRF เพราะ RRF เป็นคะแนนจากอันดับ
+    ค่าจะอยู่ราว 0.03 เท่ากันหมดไม่ว่าคำถามจะตรงแค่ไหน
+
+    ถ้าไม่มี chunk ไหนมีคะแนน dense เลย (โผล่มาจาก BM25 ล้วน) จะถือว่าอยู่ในคลัง
+    ไว้ก่อน เพราะการเผลอปฏิเสธคำถามที่ตอบได้ แย่กว่าการเผลอตอบคำถามนอกเรื่อง
+    """
+    if config.MIN_DENSE_SCORE <= 0:
+        return True
+
+    scores = [c["dense_score"] for c in chunks if c.get("dense_score") is not None]
+    if not scores:
+        return True
+
+    return max(scores) >= config.MIN_DENSE_SCORE
+
+
 class RAGPipeline:
     def __init__(self):
         llm = get_llm()
@@ -63,6 +87,12 @@ class RAGPipeline:
         )
         time_after_retrieve = time.time()
 
+        # ---- ขั้นที่ 2.5: คำถามนี้อยู่นอกคลังหรือเปล่า ----
+        # ส่ง list ว่างต่อไป เพื่อให้ไปเข้าทาง `if not chunks` ที่ generator มีอยู่แล้ว
+        out_of_scope = not is_in_scope(chunks)
+        if out_of_scope:
+            chunks = []
+
         # ---- ขั้นที่ 3: เขียนคำตอบ ----
         result = self.generator.generate(query, chunks, history)
         time_after_generate = time.time()
@@ -74,6 +104,7 @@ class RAGPipeline:
 
         result["queries_used"] = queries
         result["retrieved"] = chunks
+        result["out_of_scope"] = out_of_scope
         result["timings"] = {
             "ปรับคำถาม": round(time_after_transform - start_time, 2),
             "ค้นหา": round(time_after_retrieve - time_after_transform, 2),
