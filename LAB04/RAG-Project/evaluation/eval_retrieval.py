@@ -7,7 +7,9 @@
 #
 #     dense_only      Semantic retrieval only (baseline from Labs 1–7)
 #     bm25_only       Keyword retrieval only
-#     hybrid          BM25 + Dense retrieval with RRF
+#     hybrid_raw      BM25 + Dense with RRF, query passed through untouched
+#     hybrid          Same, but the query first goes through normalize_query()
+#                     — this is the setting main.py actually runs
 #     hybrid+rerank   Hybrid retrieval with cross-encoder reranking
 #                     (only when USE_RERANK = True)
 #
@@ -26,12 +28,16 @@ import time
 
 import config
 from evaluation.metrics import average, evaluate_one, print_table
+from src.query_transform import normalize_query
 
 # จำนวนข้อที่จะทดสอบ (None = ทั้งหมด) — ลดลงถ้าอยากให้เร็ว
 LIMIT = None
 
 # รูปแบบคำถามที่จะทดสอบ
 VARIANTS = ["verbatim", "slang", "partial", "natural"]
+
+# variant ที่จะเก็บตัวอย่างข้อที่ค้นไม่เจอมาดู
+MISS_VARIANT = "natural"
 
 
 def load_golden_set():
@@ -44,9 +50,12 @@ def load_golden_set():
         return json.load(f)
 
 
-def run_one_setting(retriever, items, top_k, use_bm25, use_dense):
+def run_one_setting(retriever, items, top_k, use_bm25, use_dense, normalize):
     """
     ทดสอบการค้นหาแบบหนึ่ง กับคำถามทุกข้อทุก variant
+
+    normalize = True คือเดินผ่าน normalize_query() แบบเดียวกับที่ RAGPipeline ทำ
+    ถ้าไม่ทำขั้นนี้ ตัวเลขที่วัดได้จะเป็นของระบบคนละตัวกับที่ main.py ใช้จริง
 
     คืน dict {variant: คะแนนเฉลี่ย} และรายการข้อที่ค้นไม่เจอ
     """
@@ -62,6 +71,9 @@ def run_one_setting(retriever, items, top_k, use_bm25, use_dense):
             if not query:
                 continue
 
+            if normalize:
+                query = normalize_query(query)
+
             if not use_dense:
                 # bm25_only — เรียก BM25 ตรง ๆ ไม่ผ่าน RRF
                 hits = retriever.bm25_search(query, top_k)
@@ -73,7 +85,7 @@ def run_one_setting(retriever, items, top_k, use_bm25, use_dense):
             scores = evaluate_one(found, item["relevant_chunk_ids"], config.EVAL_K_VALUES)
             scores_by_variant[variant].append(scores)
 
-            if variant == "natural" and scores[f"hit@{top_k}"] == 0:
+            if variant == MISS_VARIANT and scores[f"hit@{top_k}"] == 0:
                 misses.append((item["id"], query, item["relevant_chunk_ids"], found[:5]))
 
     return scores_by_variant, misses
@@ -98,27 +110,29 @@ def main():
     retriever = HybridRetriever()
     bm25_index = retriever.bm25
 
-    # (ชื่อ, ใช้ BM25?, ใช้ dense?, ใช้ rerank?)
+    # (ชื่อ, ใช้ BM25?, ใช้ dense?, ใช้ rerank?, ผ่าน normalize_query?)
+    # ทุกแถวเปิด normalize ยกเว้น hybrid_raw ที่เก็บไว้เทียบให้เห็นผลของขั้นนี้
     settings = [
-        ("dense_only", False, True, False),
-        ("bm25_only", True, False, False),
-        ("hybrid", True, True, False),
+        ("dense_only", False, True, False, True),
+        ("bm25_only", True, False, False, True),
+        ("hybrid_raw", True, True, False, False),
+        ("hybrid", True, True, False, True),
     ]
     if config.USE_RERANK:
-        settings.append(("hybrid+rerank", True, True, True))
+        settings.append(("hybrid+rerank", True, True, True, True))
 
     reranker = get_reranker()
     results = {}
     all_misses = []
 
-    for name, use_bm25, use_dense, use_rerank in settings:
+    for name, use_bm25, use_dense, use_rerank, normalize in settings:
         start_time = time.time()
 
         retriever.bm25 = bm25_index if use_bm25 else None
         retriever.reranker = reranker if use_rerank else None
 
         scores_by_variant, misses = run_one_setting(
-            retriever, items, top_k, use_bm25, use_dense
+            retriever, items, top_k, use_bm25, use_dense, normalize
         )
 
         all_scores = [s for scores in scores_by_variant.values() for s in scores]
@@ -127,7 +141,8 @@ def main():
             "by_variant": {v: average(s) for v, s in scores_by_variant.items() if s},
             "ms_per_query": round((time.time() - start_time) * 1000 / len(all_scores), 1),
         }
-        all_misses = misses
+        if name == "hybrid":            # เก็บของ setting ที่ใช้จริงเท่านั้น
+            all_misses = misses
 
         print(f"  {name:16s} เสร็จใน {time.time() - start_time:.1f}s")
 
@@ -158,7 +173,7 @@ def main():
         print(f"เทียบกับ dense_only {baseline:.4f}  ({change:+.1f}%)")
 
     if all_misses:
-        print(f"\n=== ตัวอย่างที่ค้นไม่เจอ (รูปแบบ natural) ===")
+        print(f"\n=== ตัวอย่างที่ค้นไม่เจอ (รูปแบบ {MISS_VARIANT}) ===")
         for item_id, query, expected, found in all_misses[:5]:
             print(f"  {item_id}: {query[:55]}")
             print(f"      ควรได้ {expected} | ได้ {found}")
