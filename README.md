@@ -9,7 +9,7 @@
 <br/>
 
 ![Course](https://img.shields.io/badge/course-ATCS--CPE-0A0A0A?style=for-the-badge)
-![Labs](https://img.shields.io/badge/labs-2%20%2F%2010-1F6FEB?style=for-the-badge)
+![Labs](https://img.shields.io/badge/labs-3%20%2F%2010-1F6FEB?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Status](https://img.shields.io/badge/status-in%20progress-F0B429?style=for-the-badge)
 
@@ -35,7 +35,7 @@
 | 01 | **[LAB01](LAB01/)** | LLM Data Pipeline for RAG — 8-stage ingestion pipeline. Owned **Step 5: Metadata Enrichment**. | `Python` `Pydantic` `pytest` | ✅ |
 | 02 | **[LAB02](LAB02/)** | RAG Retrieval System built from scratch — Thai firearms law & safety QA over a self-authored 313-pair knowledge base. | `Python` `FAISS` `sentence-transformers` | ✅ |
 | 03 | `LAB03` | — | — | ⏳ |
-| 04 | `LAB04` | — | — | ⏳ |
+| 04 | **[LAB04](LAB04/)** | RAG System Development I — hybrid BM25 + dense retrieval with RRF, reranking, query transforms and a metrics harness, over a self-authored 182-pair Thai military knowledge base. | `Python` `FAISS` `rank-bm25` `pythainlp` | ✅ |
 | 05 | `LAB05` | — | — | ⏳ |
 | 06 | `LAB06` | — | — | ⏳ |
 | 07 | `LAB07` | — | — | ⏳ |
@@ -72,7 +72,22 @@ ATCS-CPE/
 │       ├── config.py
 │       └── main.py
 │
-├── LAB03/ … LAB10/                 ⏳ one folder per lab
+├── LAB04/                          ✅ RAG System Development I
+│   ├── README.md                   → architecture, evaluation analysis, citations
+│   └── RAG-Project/
+│       ├── data/military_qa.txt    → 182-pair Thai military knowledge base
+│       ├── data/golden_set.json    → 60 questions x 4 query variants
+│       ├── labs/                   → lab01–lab07 step scripts
+│       ├── src/                    → + hybrid retriever, reranker, query transform,
+│       │                             prompts, generator, memory, pipeline
+│       ├── evaluation/             → Hit@k, Recall@k, Precision@k, MRR, nDCG
+│       ├── outputs/                → pipeline artifacts + evaluation reports
+│       ├── vector_db/              → prebuilt FAISS + BM25 indexes
+│       ├── config.py               → one switch per feature
+│       ├── build_index.py
+│       └── main.py
+│
+├── LAB03/ LAB05/ … LAB10/          ⏳ one folder per lab
 │   ├── <code>.ipynb | .py
 │   ├── dataset.csv                 (if any)
 │   ├── report.pdf                  (if any)
