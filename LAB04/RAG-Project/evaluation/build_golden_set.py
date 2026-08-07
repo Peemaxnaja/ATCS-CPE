@@ -47,8 +47,32 @@ PREFIXES = ["อยากรู้ว่า", "ขอถามหน่อย", 
 SUFFIXES = ["ครับ", "คะ", "อ่ะ", ""]
 SEED = 42        # ล็อกค่าสุ่มไว้ เพื่อให้ได้ชุดข้อสอบเดิมทุกครั้ง
 
+# เพิ่มคำเชื่อมที่พบบ่อยหลังเปลี่ยนมาตัดคำไทยจริง ไม่งั้น partial จะเต็มไปด้วยคำเชื่อม
 STOPWORDS = {"คือ", "อะไร", "ที่", "และ", "หรือ", "ของ", "ใน", "มี", "บ้าง",
-             "ได้", "ไหม", "อย่างไร", "ยังไง", "การ", "ความ", "เป็น", "ให้"}
+             "ได้", "ไหม", "อย่างไร", "ยังไง", "การ", "ความ", "เป็น", "ให้",
+             "กับ", "จาก", "โดย", "ต่อ", "แบบ", "แล้ว", "ยัง", "ทำไม",
+             "เมื่อ", "ถ้า", "แต่", "จึง", "ด้วย", "อยู่", "ไป", "มา"}
+
+
+def content_words(question):
+    """ตัดคำถามเป็นคำ แล้วเหลือไว้เฉพาะคำเนื้อหา
+
+    ของเดิมใช้ re.split ตามช่องว่าง ซึ่งใช้กับภาษาไทยไม่ได้เลย
+    คำถามไทยล้วนจะได้ออกมาแค่ 1 ก้อน แล้ว variant "partial" ก็ไม่ถูกสร้าง
+    (สร้างได้แค่ 20 จาก 60 ข้อ เฉพาะข้อที่มีชื่อรุ่นภาษาอังกฤษคั่นอยู่)
+    ที่นี่จึงตัดคำไทยด้วย pythainlp แบบเดียวกับที่ BM25 ใช้
+    """
+    text = re.sub(r"\(.*?\)", "", question)
+
+    try:
+        from pythainlp.tokenize import word_tokenize
+
+        words = word_tokenize(text, engine="newmm", keep_whitespace=False)
+    except ImportError:
+        words = re.split(r"[\s()/]+", text)
+
+    return [w.strip() for w in words
+            if w.strip() and w.strip() not in STOPWORDS and len(w.strip()) > 1]
 
 
 def make_variants(question, rng):
@@ -63,8 +87,7 @@ def make_variants(question, rng):
         variants["slang"] = slang
 
     # partial: ตัด stopword เหลือแต่คำเนื้อหา
-    words = [w for w in re.split(r"[\s()/]+", re.sub(r"\(.*?\)", "", question))
-             if w and w not in STOPWORDS and len(w) > 1]
+    words = content_words(question)
     if len(words) >= 2:
         variants["partial"] = " ".join(words[:max(2, int(len(words) * 0.6))])
 
