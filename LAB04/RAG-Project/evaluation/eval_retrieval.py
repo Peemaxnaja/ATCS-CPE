@@ -34,10 +34,11 @@ from src.query_transform import normalize_query
 LIMIT = None
 
 # รูปแบบคำถามที่จะทดสอบ
-VARIANTS = ["verbatim", "slang", "partial", "natural"]
+# สี่ตัวแรกสร้างจากคำถามต้นฉบับ จึงใช้คำชุดเดิม — paraphrase เป็นตัวเดียวที่เขียนใหม่หมด
+VARIANTS = ["verbatim", "slang", "partial", "natural", "paraphrase"]
 
-# variant ที่จะเก็บตัวอย่างข้อที่ค้นไม่เจอมาดู
-MISS_VARIANT = "natural"
+# variant ที่จะเก็บตัวอย่างข้อที่ค้นไม่เจอมาดู — ดูตัวที่ยากที่สุด
+MISS_VARIANT = "paraphrase"
 
 
 def load_golden_set():

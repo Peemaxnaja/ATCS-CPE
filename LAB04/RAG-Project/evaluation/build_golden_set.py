@@ -10,13 +10,19 @@
 # Original questions are too easy because BM25 can match the same words directly.
 # To create more realistic tests, each question is converted into four query types:
 #
-# verbatim  Original question for checking the system's upper limit.
-# slang     Medical terms rewritten in everyday language.
-# partial   Short keyword-style query.
-# natural   Natural user-style question for realistic evaluation.
+# verbatim    Original question for checking the system's upper limit.
+# slang       Military terms rewritten in everyday language.
+# partial     Short keyword-style query.
+# natural     Natural user-style question for realistic evaluation.
+# paraphrase  Hand-written question that avoids the dataset's own wording.
 #
-# The gap between verbatim and natural results shows how well the system handles
-# real user queries.
+# The first four variants are all derived from the original question, so they
+# reuse its vocabulary and BM25 wins them by construction. The paraphrase
+# variant is the only one written from scratch, and it is the honest test —
+# it comes from data/paraphrases.json and covers a subset of the items.
+#
+# The gap between verbatim and paraphrase results shows how well the system
+# handles real user queries.
 #
 # Set the number of items with config.GOLDEN_SET_SIZE.
 # Run: python -m evaluation.build_golden_set
@@ -24,10 +30,14 @@
 
 
 import json
+import os
 import random
 import re
 
 import config
+
+# คำถามที่เขียนด้วยมือ เก็บแยกไฟล์เพราะสร้าง golden set ใหม่กี่รอบก็ต้องไม่หาย
+PARAPHRASE_FILE = os.path.join(config.DATA_DIR, "paraphrases.json")
 
 # ตรงข้ามกับ SLANG_MAP ใน query_transform: ศัพท์ทางทหาร → ที่คนพูดกันจริง
 TO_SLANG = {
@@ -73,6 +83,16 @@ def content_words(question):
 
     return [w.strip() for w in words
             if w.strip() and w.strip() not in STOPWORDS and len(w.strip()) > 1]
+
+
+def load_paraphrases():
+    """อ่านคำถามที่เขียนมือ — ไม่มีไฟล์ก็ไม่เป็นไร แค่ไม่มี variant นี้"""
+    if not os.path.exists(PARAPHRASE_FILE):
+        print(f"ไม่พบ {PARAPHRASE_FILE} — ข้าม variant paraphrase")
+        return {}
+
+    with open(PARAPHRASE_FILE, "r", encoding="utf-8") as f:
+        return json.load(f).get("paraphrases", {})
 
 
 def make_variants(question, rng):
@@ -125,22 +145,37 @@ def main():
         selected.extend(pool[:per_category])
     selected = sorted(selected, key=lambda c: c["chunk_id"])[:config.GOLDEN_SET_SIZE]
 
-    items = [
-        {
-            "id": f"g{c['qa_id']:04d}",
+    paraphrases = load_paraphrases()
+
+    items = []
+    for c in selected:
+        item_id = f"g{c['qa_id']:04d}"
+        variants = make_variants(c["question"], rng)
+
+        # เติม paraphrase ทับเข้าไป เฉพาะข้อที่เขียนไว้แล้ว
+        if item_id in paraphrases:
+            variants["paraphrase"] = paraphrases[item_id]
+
+        items.append({
+            "id": item_id,
             "category": c["category"],
             "question": c["question"],
-            "variants": make_variants(c["question"], rng),
+            "variants": variants,
             "relevant_chunk_ids": sorted(by_qa[c["qa_id"]]),
             "reference_answer": c["answer"],
-        }
-        for c in selected
-    ]
+        })
+
+    # เตือนถ้าเขียน paraphrase ไว้แต่ id ไม่ตรงกับข้อไหนเลย — พิมพ์ id ผิดจะเงียบมาก
+    unused = set(paraphrases) - {item["id"] for item in items}
+    if unused:
+        print(f"เตือน: paraphrase {len(unused)} ข้อไม่ตรงกับ id ใด — {sorted(unused)[:5]}")
 
     with open(config.GOLDEN_SET_FILE, "w", encoding="utf-8") as f:
         json.dump({"size": len(items), "items": items}, f, ensure_ascii=False, indent=2)
 
-    print(f"สร้าง {len(items)} ข้อ จาก {len(chunks)} chunks")
+    n_paraphrase = sum(1 for i in items if "paraphrase" in i["variants"])
+    print(f"สร้าง {len(items)} ข้อ จาก {len(chunks)} chunks "
+          f"(มี paraphrase เขียนมือ {n_paraphrase} ข้อ)")
     print("\nตัวอย่าง:")
     for name, text in items[0]["variants"].items():
         print(f"  {name:9s}: {text}")
