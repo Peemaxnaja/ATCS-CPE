@@ -1,13 +1,13 @@
 {
   "file": {
-    "size": 183074,
-    "mtime": 1786031461
+    "size": 369595,
+    "mtime": 1786089977
   },
   "settings": {
     "CHUNK_SIZE": 400,
     "CHUNK_OVERLAP": 50,
     "EMBEDDING_MODEL_NAME": "paraphrase-multilingual-MiniLM-L12-v2"
   },
-  "n_chunks": 184,
+  "n_chunks": 364,
   "source_file": "military_qa.txt"
 }
