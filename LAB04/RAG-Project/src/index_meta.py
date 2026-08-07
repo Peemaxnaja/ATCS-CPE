@@ -15,7 +15,12 @@ import os
 import config
 
 # ค่าตั้งที่ถ้าเปลี่ยนแล้ว index เดิมใช้ไม่ได้ ต้อง build ใหม่
-TRACKED_SETTINGS = ["CHUNK_SIZE", "CHUNK_OVERLAP", "EMBEDDING_MODEL_NAME"]
+#
+# คำนำหน้าสองตัวท้ายอยู่ในนี้ด้วย เพราะถ้าสร้าง index ด้วย "passage: " แล้ว
+# มาค้นด้วยคำถามที่ไม่มี "query: " โมเดลจะยังคืนผลให้ตามปกติ แค่แย่ลงเงียบ ๆ
+# ไม่มี error ให้เห็น — เป็นความผิดพลาดแบบที่หาไม่เจอถ้าไม่มีใครเตือน
+TRACKED_SETTINGS = ["CHUNK_SIZE", "CHUNK_OVERLAP", "EMBEDDING_MODEL_NAME",
+                    "EMBEDDING_QUERY_PREFIX", "EMBEDDING_PASSAGE_PREFIX"]
 
 
 def get_current_state():  #านสถานะปัจจุบันของ dataset และค่าตั้ง

@@ -1,23 +1,23 @@
 
 
 
-# Evaluate retrieval performance using data/golden_set.json.
+# Evaluate answer quality, not retrieval — the whole RAGPipeline runs per item.
 #
-# This script compares whether BM25 and reranking improve retrieval quality.
-# It runs multiple retrieval methods on the same evaluation queries.
+# (หัวไฟล์เดิมถูกก๊อปมาจาก eval_retrieval.py ทั้งบล็อก บรรยายการเทียบ
+#  dense/bm25/hybrid ซึ่งไฟล์นี้ไม่ได้ทำเลย แก้ให้ตรงกับของจริงแล้ว)
 #
-#     dense_only      Semantic retrieval only (baseline from Labs 1–7)
-#     bm25_only       Keyword retrieval only
-#     hybrid          BM25 + Dense retrieval with RRF
-#     hybrid+rerank   Hybrid retrieval with cross-encoder reranking
-#                     (only when USE_RERANK = True)
+# วัดสี่อย่างต่อคำถามหนึ่งข้อ
 #
-# How to interpret the results:
-#   * Hybrid should perform best on partial queries and English abbreviations.
-#   * Reranking should improve MRR and nDCG more than Hit@10 because it only
-#     reorders retrieved results.
-#   * Strong performance only on verbatim queries indicates exact word matching
-#     rather than robust retrieval.
+#     context_hit    ค้นเจอ chunk ที่ถูกไหม — แยกความผิดของ retriever
+#                    ออกจากความผิดของคนเขียนคำตอบ
+#     faithfulness   คำในคำตอบมาจากเอกสารกี่ % — ต่ำแปลว่าน่าจะแต่งเอง
+#     correctness    คำตอบทับกับ reference answer กี่ %
+#     relevance      คำตอบเกาะคำถามแค่ไหน
+#
+# ข้อควรระวังตอนอ่านผล
+#   * ทั้งสี่ค่าเป็นการนับคำทับกัน ไม่ใช่การเข้าใจความหมาย
+#   * ถ้า USE_LLM = False คำตอบคือการคัดลอก chunk อันดับ 1 มาแปะ
+#     faithfulness จะได้ 1.0 อัตโนมัติ และไม่ได้วัดอะไรเลย
 
 
 import json
@@ -31,8 +31,11 @@ from src.prompt_templates import format_context
 # กี่ข้อ — การเรียก LLM ช้า จึงตั้งไว้น้อย
 LIMIT = 20
 
-# ใช้คำถามรูปแบบไหน (natural = ภาษาพูดจริง เป็นเคสที่ใช้ตัดสิน)
-VARIANT = "natural"
+# ใช้คำถามรูปแบบไหน
+# เดิมใช้ natural ซึ่งเป็นรูปแบบที่ง่ายที่สุด (retrieval MRR 0.99) การวัดคุณภาพ
+# คำตอบด้วยคำถามที่ระบบค้นเจอถูกเกือบทุกข้ออยู่แล้ว จึงไม่ได้บอกอะไร
+# เปลี่ยนมาใช้ paraphrase ที่เขียนใหม่ด้วยคำคนละชุด เป็นเคสที่ใช้ตัดสินจริง
+VARIANT = "paraphrase"
 
 
 def word_overlap(text_a, text_b):
@@ -103,7 +106,10 @@ def main():
 
     from src.rag_pipeline import RAGPipeline
 
-    items = load_golden_set()["items"][:LIMIT]
+    # เอาเฉพาะข้อที่มี variant นี้จริง ไม่งั้นจะหล่นไปใช้คำถามต้นฉบับเงียบ ๆ
+    items = [item for item in load_golden_set()["items"]
+             if VARIANT in item["variants"]][:LIMIT]
+    print(f"ใช้คำถามรูปแบบ {VARIANT} จำนวน {len(items)} ข้อ")
 
     # ปิด memory เพราะแต่ละข้อต้องเป็นอิสระ ไม่ให้ข้อก่อนหน้ามีผลกับข้อถัดไป
     original_memory = config.USE_MEMORY
