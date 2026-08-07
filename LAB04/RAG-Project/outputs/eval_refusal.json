@@ -1,0 +1,44 @@
+{
+  "variant": "paraphrase",
+  "n_in_scope": 55,
+  "n_out_of_scope": 19,
+  "in_scope_min": 0.4573,
+  "out_of_scope_max": 0.605,
+  "thresholds": [
+    {
+      "threshold": 0.0,
+      "refused_out_of_scope": 0.0,
+      "refused_in_scope": 0.0
+    },
+    {
+      "threshold": 0.3,
+      "refused_out_of_scope": 0.5789,
+      "refused_in_scope": 0.0
+    },
+    {
+      "threshold": 0.35,
+      "refused_out_of_scope": 0.7368,
+      "refused_in_scope": 0.0
+    },
+    {
+      "threshold": 0.4,
+      "refused_out_of_scope": 0.7368,
+      "refused_in_scope": 0.0
+    },
+    {
+      "threshold": 0.45,
+      "refused_out_of_scope": 0.7895,
+      "refused_in_scope": 0.0
+    },
+    {
+      "threshold": 0.5,
+      "refused_out_of_scope": 0.8421,
+      "refused_in_scope": 0.0727
+    },
+    {
+      "threshold": 0.6,
+      "refused_out_of_scope": 0.9474,
+      "refused_in_scope": 0.2909
+    }
+  ]
+}
