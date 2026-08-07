@@ -89,19 +89,45 @@ def load_bm25(chunks):
 
 
 # Step 3: RRF — รวมผลจากหลายวิธี
+def prune(hits, floor_ratio):
+# Drop candidates that scored far below the best hit in the same list.
+#
+# RRF ให้คะแนนตามอันดับล้วน ๆ ผู้เข้ารอบอันดับ 20 ที่คะแนนจริงเกือบศูนย์
+# จึงยังได้โหวตเท่ากับอันดับ 20 ของอีกฝั่งที่คะแนนดี พอคำถามเป็นแบบที่
+# ฝั่งใดฝั่งหนึ่งจับไม่ได้เลย ขยะ 20 ตัวนั้นก็เข้าไปเจือจางผลของอีกฝั่ง
+#
+# ตัดด้วยสัดส่วนของคะแนนอันดับ 1 ไม่ใช่ค่าคงที่ เพราะสเกลของ dense (โคไซน์)
+# กับ BM25 (ไม่มีขอบบน) คนละเรื่องกัน
+
+    if floor_ratio <= 0 or not hits:
+        return hits
+
+    best = max(score for _, score in hits)
+    if best <= 0:
+        return hits
+
+    return [(position, score) for position, score in hits
+            if score >= best * floor_ratio]
+
+
 def reciprocal_rank_fusion(ranked_lists):
 # Merge multiple ranked lists into a single ranking.
 # Uses Reciprocal Rank Fusion (RRF) to combine retrieval results.
 # Higher-ranked items receive higher scores.
 # Items found by multiple methods receive a score boost.
-# Example: 
-# Dense=[12,5,88], 
+# Example:
+# Dense=[12,5,88],
 # BM25=[5,300,12] → 5 ranks above 12.
+#
+# ranked_lists รับได้ทั้ง [positions] เฉย ๆ และ (weight, [positions])
+# น้ำหนักมีไว้ให้เลิกเชื่อสองฝั่งเท่ากันเมื่อวัดแล้วพบว่าฝั่งหนึ่งแม่นกว่า
 
     scores = {}
     for ranked in ranked_lists:
-        for rank, position in enumerate(ranked, start=1):
-            scores[position] = scores.get(position, 0.0) + 1.0 / (config.RRF_K + rank)
+        weight, positions = ranked if isinstance(ranked, tuple) else (1.0, ranked)
+
+        for rank, position in enumerate(positions, start=1):
+            scores[position] = scores.get(position, 0.0) + weight / (config.RRF_K + rank)
 
     # เรียงจากคะแนนมากไปน้อย
     return sorted(scores.items(), key=lambda item: item[1], reverse=True)
@@ -157,13 +183,19 @@ class HybridRetriever:
 
         for one_query in queries:
             dense_hits = self.dense_search(one_query, config.CANDIDATE_K)
-            ranked_lists.append([position for position, _ in dense_hits])
             dense_scores.update(dense_hits)
+            ranked_lists.append((
+                config.RRF_DENSE_WEIGHT,
+                [p for p, _ in prune(dense_hits, config.RRF_DENSE_FLOOR)],
+            ))
 
             if config.USE_HYBRID:
                 bm25_hits = self.bm25_search(one_query, config.CANDIDATE_K)
-                ranked_lists.append([position for position, _ in bm25_hits])
                 bm25_scores.update(bm25_hits)
+                ranked_lists.append((
+                    config.RRF_BM25_WEIGHT,
+                    [p for p, _ in prune(bm25_hits, config.RRF_BM25_FLOOR)],
+                ))
 
         # รวมอันดับด้วย RRF 
         fused = reciprocal_rank_fusion(ranked_lists)

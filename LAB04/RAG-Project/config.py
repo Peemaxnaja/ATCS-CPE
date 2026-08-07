@@ -60,7 +60,17 @@ EMBEDDING_MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 # 4. การค้นหา
 TOP_K = 3               # ส่งกี่ chunk ให้ LLM เขียนคำตอบ
 CANDIDATE_K = 20        # ดึง TOP_K
-RRF_K = 60              # ค่าคงที่ของสูตร RRF 
+RRF_K = 60              # ค่าคงที่ของสูตร RRF
+
+# น้ำหนักของแต่ละฝั่งตอนรวมอันดับ — 1.0 เท่ากันคือเชื่อพอกัน
+RRF_DENSE_WEIGHT = 1.0
+RRF_BM25_WEIGHT = 1.0
+
+# ตัดผู้เข้ารอบที่คะแนนต่ำกว่ากี่เท่าของอันดับ 1 ทิ้งก่อนเข้า RRF (0 = ไม่ตัด)
+# RRF นับแต่อันดับ ผู้เข้ารอบท้ายแถวที่คะแนนจริงเกือบศูนย์จึงมีสิทธิ์โหวตเท่ากัน
+# ค่าที่ตั้งไว้มาจากการกวาดหาบน variant paraphrase (ดู README)
+RRF_DENSE_FLOOR = 0.0
+RRF_BM25_FLOOR = 0.0
 
 RERANK_MODEL_NAME = "BAAI/bge-reranker-v2-m3"   # ใช้เมื่อ USE_RERANK = True
 
