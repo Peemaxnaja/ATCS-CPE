@@ -19,8 +19,9 @@ USE_HYBRID = True            # ค้นด้วย BM25 ควบคู่ก�
 USE_RERANK = False            # จัดอันดับใหม่ด้วย cross-encoder — แม่นขึ้นแต่ช้ามาก
 USE_QUERY_TRANSFORM = False      # แปลงคำถามก่อนค้น — เสีย LLM เพิ่ม 1 ครั้งต่อคำถาม
 USE_MEMORY = True              # จำบทสนทนา เพื่อตอบคำถามต่อเนื่องได้
-USE_LLM = True              # False = แสดงข้อความที่ค้นได้ดิบ ๆ ไม่เรียก LLM เลย
-SHOW_SOURCES =  False        # True = แสดงรายการแหล่งอ้างอิงท้ายคำตอบ
+USE_LLM = False             # False = แสดงข้อความที่ค้นได้ดิบ ๆ ไม่เรียก LLM เลย
+                            # ตั้งเป็น True เมื่อมี Ollama/OpenAI/Gemini พร้อมใช้ (ดูข้อ 5)
+SHOW_SOURCES = True          # True = แสดงรายการแหล่งอ้างอิงท้ายคำตอบ
 SHOW_DEBUG = False          # True = แสดงคะแนนและเวลาของแต่ละขั้น
 
 
@@ -32,7 +33,7 @@ VECTOR_DB_DIR = os.path.join(BASE_DIR, "vector_db")
 
 
 # clack python build_index.py
-SOURCE_FILE = os.path.join(DATA_DIR, "sex_q_a.txt")
+SOURCE_FILE = os.path.join(DATA_DIR, "military_qa.txt")
 GOLDEN_SET_FILE = os.path.join(DATA_DIR, "golden_set.json")
 
 # ผลลัพธ์ระหว่างทางจาก build_index.py
@@ -83,7 +84,8 @@ LLM_PROVIDERS = {
 # 6. ข้อความและการวัดผล
 MEMORY_MAX_TURNS = 6    # จำนวนรอบของการจำบทสนทนา
 NO_CONTEXT_MESSAGE = "ขออภัย ไม่พบข้อมูลที่เกี่ยวข้อง"
-DISCLAIMER = "หมายเหตุ: ข้อมูลนี้ใช้เพื่อการศึกษาเท่านั้น"
+DISCLAIMER = ("หมายเหตุ: ข้อมูลนี้เป็นความรู้เชิงสารานุกรมเพื่อการศึกษาเท่านั้น "
+              "ตัวเลขสมรรถนะเป็นค่าโดยประมาณจากแหล่งข้อมูลสาธารณะ")
 
 EVAL_K_VALUES = [1, 3, 5, 10]
 GOLDEN_SET_SIZE = 60

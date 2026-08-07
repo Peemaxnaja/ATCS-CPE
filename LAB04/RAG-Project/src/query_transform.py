@@ -5,13 +5,13 @@
 # Retrieval quality depends on the user's query. Real users often write
 # short or ambiguous questions, or use slang.
 #
-#     "I have a sore on my private part"   ← slang
-#     Knowledge base: "penis"
+#     "แทงค์รุ่นไหนเกราะหนาสุด"            ← slang
+#     Knowledge base: "รถถัง"
 #
-#     "So what's the difference?"          ← unclear without context
+#     "แล้วอันไหนยิงไกลกว่ากัน"            ← unclear without context
 #
-# Since the knowledge base uses medical terms, query transformation helps
-# bridge the gap between user language and stored documents.
+# Since the knowledge base uses formal military terms, query transformation
+# helps bridge the gap between user language and stored documents.
 #
 # Two levels are available:
 #
@@ -39,16 +39,22 @@ import config
 from src.prompt_templates import HYDE_PROMPT, MULTI_QUERY_PROMPT, REWRITE_PROMPT
 
 # ตารางแทนคำแสลง — เพิ่มคำได้ตามต้องการ ไม่ต้องแก้โค้ดส่วนอื่น
+#
+# กติกาของตารางนี้: ใส่เฉพาะคำที่ "ไม่มีอยู่ในฐานความรู้"
+# เพราะ normalize_query แทนที่ทับของเดิม ถ้าไปแทนคำที่ฐานความรู้ใช้จริง
+# (เช่น "โดรน" ที่ปรากฏ 14 ครั้ง) จะกลายเป็นทำให้ BM25 แย่ลง
 SLANG_MAP = {
-    "น้องชาย": "อวัยวะเพศชาย",
-    "น้องสาว": "อวัยวะเพศหญิง",
-    "จู๋": "อวัยวะเพศชาย",
-    "จิ๋ม": "อวัยวะเพศหญิง",
-    "ถุงยาง": "ถุงยางอนามัย",
-    "เอดส์": "เอชไอวี",
-    "มีอะไรกัน": "มีเพศสัมพันธ์",
-    "โรคจากเซ็กส์": "โรคติดต่อทางเพศสัมพันธ์",
-    "เมนส์": "ประจำเดือน",
+    "แทงค์": "รถถัง",
+    "แท็งค์": "รถถัง",
+    "มิสไซล์": "ขีปนาวุธ",
+    "มิซไซล์": "ขีปนาวุธ",
+    "ไรเฟิล": "ปืนเล็กยาว",
+    "ซับมารีน": "เรือดำน้ำ",
+    "เครื่องบินรบ": "อากาศยานรบ",
+    "ฮ.": "เฮลิคอปเตอร์",
+    "ทบ.": "กองทัพบก",
+    "ทร.": "กองทัพเรือ",
+    "ทอ.": "กองทัพอากาศ",
 }
 
 # คำลงท้ายที่ไม่ช่วยในการค้นหา
@@ -59,7 +65,7 @@ def normalize_query(query):
     """
     ปรับคำถามแบบไม่ใช้ AI — เร็วและฟรี
 
-        "เป็นแผลที่น้องชายครับ"  →  "เป็นแผลที่อวัยวะเพศชาย"
+        "แทงค์รุ่นไหนเกราะหนาสุดครับ"  →  "รถถังรุ่นไหนเกราะหนาสุด"
     """
     text = re.sub(r"\s+", " ", query).strip()       # ตัดช่องว่างซ้ำซ้อน
 

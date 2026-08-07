@@ -18,11 +18,12 @@ def print_answer(result):   # Display the answer and its source
     print()
     print(result["answer"])
 
-    #if config.SHOW_SOURCES and result["sources"]:
-    #    print("\nSources:")
-    #    for source in result["sources"]:
-    #        print(f"  [{source['n']}] {source['question']}")
-    #        print(f"      Line {source['line_no']} · Score {source['score']}")
+    # เปิดกลับมาใช้ เพราะงานนี้ต้องตรวจสอบย้อนกลับได้ว่าคำตอบมาจากคู่ Q&A ไหน
+    if config.SHOW_SOURCES and result["sources"]:
+        print("\nแหล่งอ้างอิง:")
+        for source in result["sources"]:
+            print(f"  [{source['n']}] {source['question']}")
+            print(f"      บรรทัดที่ {source['line_no']} · คะแนน {source['score']}")
 
     if config.SHOW_DEBUG:
         print(f"\n[Debug] Search queries: {result['queries_used']}")
@@ -40,19 +41,19 @@ def main():
     index_meta.warn_if_stale()
 
     print("--" * 30)
-    print("Sexual Health Question Answering System")
+    print("ระบบถาม-ตอบความรู้ยุทโธปกรณ์และกิจการทหาร (RAG)")
     print("--" * 30)
 
     rag = RAGPipeline()
     #rag.show_settings()
 
-    print("\nHi Bro! 😎\nAsk me anything")
+    print("\nพิมพ์คำถามเกี่ยวกับยุทโธปกรณ์หรือกิจการทหารได้เลย (พิมพ์ exit เพื่อออก)")
 
     while True:
         question = input("\nQ: ").strip()
 
         if question in ("exit", "quit", "q"):
-            print("ขอบใจหลายๆ เด้อ !!!")
+            print("จบการทำงาน")
             break
 
         if not question:

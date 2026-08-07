@@ -11,7 +11,7 @@ import re
 from openai import OpenAI
 
 import config
-from src.prompt_templates import build_messages
+from src.prompt_templates import CONTEXT_HEADER, QUESTION_HEADER, build_messages
 
 
 class LLM:
@@ -40,6 +40,12 @@ class LLM:
 
 
 class NoLLM:
+    """โหมดไม่เรียก LLM — คืนบล็อก [1] ที่ค้นเจอมาตรง ๆ
+
+    ของเดิมตัดข้อความด้วยสตริง "reference data :" / "Q of user" ซึ่งไม่มีอยู่ใน
+    USER_PROMPT ภาษาไทยเลย โหมดนี้จึงตอบ NO_CONTEXT_MESSAGE ทุกครั้ง
+    เปลี่ยนมาอ้างหัวข้อจาก prompt_templates เพื่อให้แก้ prompt แล้วไม่หลุดอีก
+    """
 
     model = "don't use LLM"
 
@@ -47,11 +53,11 @@ class NoLLM:
         user_message = messages[-1]["content"]
 
         # ดึงเนื้อหาบล็อก [1] ออกมาจาก prompt
-        parts = user_message.split("reference data :")
+        parts = user_message.split(CONTEXT_HEADER)
         if len(parts) < 2:
             return config.NO_CONTEXT_MESSAGE
 
-        context = parts[1].split("Q of user")[0].strip()
+        context = parts[1].split(QUESTION_HEADER)[0].strip()
         first_block = context.split("\n\n")[0].replace("[1]", "").strip()
 
         return f"{first_block} [1]" if first_block else config.NO_CONTEXT_MESSAGE
