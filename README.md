@@ -35,7 +35,7 @@
 | 01 | **[LAB01](LAB01/)** | LLM Data Pipeline for RAG — 8-stage ingestion pipeline. Owned **Step 5: Metadata Enrichment**. | `Python` `Pydantic` `pytest` | ✅ |
 | 02 | **[LAB02](LAB02/)** | RAG Retrieval System built from scratch — Thai firearms law & safety QA over a self-authored 313-pair knowledge base. | `Python` `FAISS` `sentence-transformers` | ✅ |
 | 03 | `LAB03` | — | — | ⏳ |
-| 04 | **[LAB04](LAB04/)** | RAG System Development I — hybrid BM25 + dense retrieval with RRF, reranking, query transforms and a metrics harness, over a self-authored 361-pair Thai military knowledge base. | `Python` `FAISS` `rank-bm25` `pythainlp` | ✅ |
+| 04 | **[LAB04](LAB04/)** | RAG System Development I — hybrid BM25 + dense retrieval with RRF, reranking, query transforms and a metrics harness, over a self-authored 361-pair Thai military knowledge base. Benchmarked against 55 hand-written paraphrase questions that share no wording with the dataset. | `Python` `FAISS` `rank-bm25` `pythainlp` | ✅ |
 | 05 | `LAB05` | — | — | ⏳ |
 | 06 | `LAB06` | — | — | ⏳ |
 | 07 | `LAB07` | — | — | ⏳ |
@@ -76,7 +76,8 @@ ATCS-CPE/
 │   ├── README.md                   → architecture, evaluation analysis, citations
 │   └── RAG-Project/
 │       ├── data/military_qa.txt    → 361-pair Thai military knowledge base
-│       ├── data/golden_set.json    → 120 questions x 4 query variants
+│       ├── data/paraphrases.json   → 55 hand-written questions, no shared wording
+│       ├── data/golden_set.json    → 120 questions x 5 query variants
 │       ├── labs/                   → lab01–lab07 step scripts
 │       ├── src/                    → + hybrid retriever, reranker, query transform,
 │       │                             prompts, generator, memory, pipeline
