@@ -23,7 +23,7 @@ TRACKED_SETTINGS = ["CHUNK_SIZE", "CHUNK_OVERLAP", "EMBEDDING_MODEL_NAME",
                     "EMBEDDING_QUERY_PREFIX", "EMBEDDING_PASSAGE_PREFIX"]
 
 
-def get_current_state():  #านสถานะปัจจุบันของ dataset และค่าตั้ง
+def get_current_state():  # อ่านสถานะปัจจุบันของ dataset และค่าตั้ง
     file_info = {}
     if os.path.exists(config.SOURCE_FILE):
         stat = os.stat(config.SOURCE_FILE)
@@ -60,8 +60,15 @@ def find_problems():  # ตรวจสอบปัญหาใน index
     if saved.get("file") != now["file"]:
         problems.append(f"ไฟล์ {os.path.basename(config.SOURCE_FILE)} ถูกแก้ไขหลังสร้าง index")
 
+    saved_settings = saved.get("settings", {})
+
     for name in TRACKED_SETTINGS:
-        old_value = saved.get("settings", {}).get(name)
+        # index ที่สร้างไว้ก่อนจะมีค่านี้ ย่อมไม่มีค่าเก่าให้เทียบ ข้ามไป
+        # ไม่งั้นทุกครั้งที่เพิ่มค่าใหม่เข้า TRACKED_SETTINGS จะเตือนผิดทั้งที่ index ยังใช้ได้
+        if name not in saved_settings:
+            continue
+
+        old_value = saved_settings[name]
         new_value = now["settings"][name]
         if old_value != new_value:
             problems.append(f"ค่า {name} เปลี่ยนจาก {old_value} เป็น {new_value}")
