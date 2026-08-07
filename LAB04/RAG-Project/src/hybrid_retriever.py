@@ -119,13 +119,11 @@ def reciprocal_rank_fusion(ranked_lists):
 # Dense=[12,5,88],
 # BM25=[5,300,12] → 5 ranks above 12.
 #
-# ranked_lists รับได้ทั้ง [positions] เฉย ๆ และ (weight, [positions])
+# แต่ละตัวใน ranked_lists เป็นคู่ (น้ำหนัก, รายการอันดับ)
 # น้ำหนักมีไว้ให้เลิกเชื่อสองฝั่งเท่ากันเมื่อวัดแล้วพบว่าฝั่งหนึ่งแม่นกว่า
 
     scores = {}
-    for ranked in ranked_lists:
-        weight, positions = ranked if isinstance(ranked, tuple) else (1.0, ranked)
-
+    for weight, positions in ranked_lists:
         for rank, position in enumerate(positions, start=1):
             scores[position] = scores.get(position, 0.0) + weight / (config.RRF_K + rank)
 
