@@ -57,6 +57,12 @@ CHUNK_OVERLAP = 50      # ให้ chunk ที่ติดกันเหล�
 # ตัวโมเดลจริงถูกดาวน์โหลดไปเก็บที่ C:\Users\----\.cache\huggingface
 EMBEDDING_MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 
+# บางโมเดลบังคับให้เติมคำนำหน้าคนละแบบระหว่างฝั่งคำถามกับฝั่งเอกสาร
+# ตระกูล e5 เป็นตัวอย่าง ถ้าไม่เติมคะแนนจะตกอย่างเห็นได้ชัด
+# MiniLM ไม่ต้องเติมอะไร จึงเว้นว่างไว้
+EMBEDDING_QUERY_PREFIX = ""
+EMBEDDING_PASSAGE_PREFIX = ""
+
 # 4. การค้นหา
 TOP_K = 3               # ส่งกี่ chunk ให้ LLM เขียนคำตอบ
 CANDIDATE_K = 20        # ดึง TOP_K
